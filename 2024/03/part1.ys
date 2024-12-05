@@ -1,0 +1,5 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  reduce _ 0 re-seq(/mul\((\d+),(\d+)\)/ data:slurp):
+    fn(sum m): sum + (m.1:N * m.2:N)

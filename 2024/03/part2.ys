@@ -1,0 +1,14 @@
+!yamlscript/v0
+
+enabled =: atom(true)
+pattern =: /(?x) (?:mul\((\d+),(\d+)\)
+               | (do(?:n't)?)\(\))/
+
+defn main(data): !:say
+  sum: data:slurp.re-seq(pattern).map(mul)
+
+defn mul(m):
+  cond:
+    m.3 == 'do':    reset!(enabled true).!
+    m.3 == "don't": reset!(enabled false)
+    else: enabled:D.when(m.1:N * m.2:N)

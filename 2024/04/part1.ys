@@ -1,0 +1,16 @@
+!yamlscript/v0
+
+word =: 'XMAS'
+defn main(data): !:say
+  lines =: data:slurp:lines
+  H W =: -[ lines.#, lines.0.# ]
+  text =: lines:join
+  sum:
+    for x W:range, y H:range: !:sum
+      for X (-1 .. 1) Y (-1 .. 1):
+        loop x x, y y, i 0:
+          cond:
+            i == word.#: 1
+            (-1 < x < W).! || (-1 < y < H).!: 0
+            word.$i == text.get(x + (y * W)):
+              recur: (X + x) (Y + y) i.++

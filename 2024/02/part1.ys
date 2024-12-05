@@ -1,0 +1,12 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  reports =: data:slurp:lines.map(\(words(_).map(N)))
+  reduce _ 0 reports:
+    fn(safe r):
+      safe +: (r.0 > r.1).if(r:reverse r):safe?
+
+defn safe?(r):
+  reduce _ true range(r.#.--):
+    fn(safe i):
+      safe &&: 1 <= (r.nth(i.++) - r.$i) <= 3

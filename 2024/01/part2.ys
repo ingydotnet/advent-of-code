@@ -1,0 +1,18 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  list1 list2 =:
+    reduce _ [[] []] data:slurp:lines:
+      fn([l1 l2] line):
+        n1 n2 =: line:words
+        vector: l1.conj(n1) l2.conj(n2)
+
+  list =: list1:sort
+  dict =:
+    into {}: list2:sort
+               .partition-by(a _)
+               .map(\([_.0 _.#]))
+
+  reduce _ 0 list.#:range:
+    fn(a i):
+      a + (list.$i:N * dict.get(list.$i 0))

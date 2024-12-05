@@ -1,0 +1,14 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  list1 list2 =:
+    reduce _ [[] []] data:slurp:lines:
+      fn([l1 l2] line):
+        n1 n2 =: line:words
+        vector: l1.conj(n1) l2.conj(n2)
+
+  list1 list2 =: -[list1:sort list2:sort]
+
+  reduce _ 0 list1.#:range:
+    fn(a i):
+      a +: abs(list1.$i:N - list2.$i:N)
