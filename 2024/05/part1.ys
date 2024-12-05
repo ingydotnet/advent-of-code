@@ -1,0 +1,15 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  rules updates =: data:slurp.split("\n\n")
+  rules =: rules:lines.zipmap(repeat(1))
+  updates =: updates:lines.map(\(_.split(',')))
+  defn valid(update):
+    loop update update:
+      num1 num2 =: update.take(2)
+      cond:
+        rules.get("$num2|$num1"): false
+        update:rest.!: true
+        else: recur(update:rest)
+  defn middle(_): _.nth(_.#.quot(2)):N
+  sum: updates.filter(valid).map(middle)

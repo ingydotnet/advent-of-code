@@ -1,0 +1,19 @@
+!yamlscript/v0
+
+defn main(data): !:say
+  rules updates =: data:slurp.split("\n\n")
+  rules =: rules:lines.zipmap(repeat(1))
+  updates =: updates:lines.map(\(_.split(',')))
+  defn fixed(update):
+    fixed =:
+      loop update update, new []:
+        n1 n2 =: update.take(2)
+        cond:
+          update:rest.!: new.conj(n1)
+          rules.get("$n2|$n1"):
+            recur _ []:
+              new + [n2 n1] + update.drop(2):V
+          else: recur(update:rest new.conj(n1))
+    when fixed != update: fixed
+  defn middle(_): _.nth(_.#.quot(2)):N
+  sum: updates.keep(fixed).map(middle)
