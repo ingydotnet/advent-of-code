@@ -3,12 +3,16 @@
 defn main(file): !:say
   code =: file:slurp
   ylines =: code:lines
-  width =: ylines.map(count).max(*).++
+  ywidth =: ylines.map(count).max(*)
+  cwidth =: ENV.SBS_WIDTH || 100
   clj =: code:ys/compile
-  clj =: sh({:in clj} 'zprint').out
+  clj =: sh({:in clj}
+            'zprint'
+            "{:width $cwidth :style :community}"
+          ).out
            .replace(
-             /(?m)^(\ *\(defn \S*)\n\s*(.*)/
-             '$1 $2'
+             /(?m)^(\ *\(defn \S*)\n\s*\[/
+             '$1 ['
            )
   clj =: |-
     ;; $ ys -c $file
@@ -19,6 +23,6 @@ defn main(file): !:say
   reduce _ '' range(height):
     fn(out i):
       out +:
-        format "%-${width}s | %s\n":
+        format "%-${ywidth}s | %s\n":
           (ylines.$i || '')
           (clines.$i || '')
