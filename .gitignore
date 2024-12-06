@@ -1,2 +1,5 @@
 ingydotnet.txt
 ReadMe.md
+*.clj
+*.ys
+!part[12].ys

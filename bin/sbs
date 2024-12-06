@@ -1,0 +1,24 @@
+#!/usr/bin/env ys-0
+
+defn main(file): !:say
+  code =: file:slurp
+  ylines =: code:lines
+  width =: ylines.map(count).max(*).++
+  clj =: code:ys/compile
+  clj =: sh({:in clj} 'zprint').out
+           .replace(
+             /(?m)^(\ *\(defn \S*)\n\s*(.*)/
+             '$1 $2'
+           )
+  clj =: |-
+    ;; $ ys -c $file
+
+    $clj
+  clines =: clj:lines
+  height =: max(ylines.# clines.#)
+  reduce _ '' range(height):
+    fn(out i):
+      out +:
+        format "%-${width}s | %s\n":
+          (ylines.$i || '')
+          (clines.$i || '')
