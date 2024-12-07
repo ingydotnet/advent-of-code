@@ -1,0 +1,28 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  lines =: file:slurp:lines
+    .map(\(_.split(/:? /).map(N)))
+  reduce _ 0 lines:
+    fn(total [want start *nums]):
+      total +:
+        or _ 0:
+          some \(test(_ want start nums)):
+            get-ops(nums.#)
+
+defn test(ops want start nums):
+  loop val start, [op *ops] ops, [num *nums] nums:
+    val =: op(val num)
+    cond:
+      val > want: nil
+      nums.#.!: (val == want).when(val)
+      else: recur(val ops nums)
+
+defn get-ops(n):     # get operator permutations
+  reduce _ [[]] range(n):
+    fn(ops _): !:vec
+      ops.map(\(_.conj(mul))) +
+      ops.map(\(_.conj(add))) +
+      ops.map(\(_.conj(cat)))
+
+defn cat(a b): parse-long("$a$b")
