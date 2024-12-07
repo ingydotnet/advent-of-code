@@ -1,0 +1,28 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  lines =: file:slurp:lines
+  W =: lines.0.#
+  dirs =: cycle([(0 - W) 1 W -1])
+  grid =: lines:join
+  pos =: grid.index('^')
+  been =: hash-map()
+
+  defn out(pos move):
+    next =: pos + move
+    not(0 <= next <= grid.#) ||:
+      ((move == 1) && (next % W).!) ||
+      ((move == -1) && (pos % W).!)
+
+  loop pos pos, dirs dirs, been been:
+    been =: been.assoc(pos 1)
+    move =: dirs:first
+    if out(pos move):
+      then: been.#
+      else:
+        next =: pos + move
+        next dirs =:
+          if \\# == grid.$next:
+           -[pos dirs:rest]
+            [next dirs]
+        recur: next, dirs, been

@@ -1,0 +1,48 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  linez =: file:slurp:lines
+  W =: linez.0.#
+  dirs =: cycle([(0 - W) 1 W -1])
+  grid =: linez:join
+  pos =: grid.index('^')
+  seen =: hash-map()
+
+  defn out(pos move):
+    next =: pos + move
+    not(0 <= next <= grid.#) ||:
+      ((move == 1) && (next % W).!) ||
+      ((move == -1) && (pos % W).!)
+
+  defn loop?(pos dirs):
+    next =: pos + dirs.0
+    grid =: grid.subs(0 next) + '#' +
+            grid.subs(next.++)
+    been =: -{}
+    loop pos pos, dirs dirs, been been:
+      move =: dirs:first
+      next =: pos + move
+      mark =: -[pos move]
+      cond:
+        out(pos move): 0
+        \\# == grid.$next:
+          recur: pos, dirs:rest, been
+        been.$mark: 1
+        else:
+          recur: next, dirs, been.assoc(mark 1)
+
+  loop pos pos, dirs dirs, seen seen, num 0:
+    move =: dirs:first
+    if out(pos move):
+      then: num
+      else:
+        next =: pos + move
+        num =:
+          if seen.$next: num
+            loop?(pos dirs).add(num)
+        seen =: seen.assoc(next 1)
+        next dirs =:
+          if \\# == grid.$next:
+           -[pos dirs:rest]
+            [next dirs]
+        recur: next, dirs, seen, num
