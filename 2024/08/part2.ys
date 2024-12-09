@@ -1,0 +1,38 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  lines =: file:slurp:lines
+  H W =: -[lines.# lines.0.#]
+  points =:
+    map-indexed _ lines:
+      fn(y line):
+        map-indexed _ line:split:
+          \(%2.ne('.').when([%2 [_ y]]))
+  points .=: concat(*).filter(a)
+             .group-by(first _)
+  defn map-antis(m [x1 y1] [x2 y2]):
+    dx dy =: -[x2.sub(x1) y2.sub(y1)]
+    m =: m.assoc([y1 x1] 1)
+    m =: m.assoc([y2 x2] 1)
+    m =:
+      loop m m, x x1, y y1:
+        x y =: -[x.sub(dx) y.sub(dy)]
+        if (-1 < x < W) && (-1 < y < H):
+          recur: m.assoc([y x] 1) x y
+          else: m
+    loop m m, x x1, y y1:
+      x y =: -[x.add(dx) y.add(dy)]
+      if (-1 < x < W) && (-1 < y < H):
+        recur: m.assoc([y x] 1) x y
+        else: m
+  count:
+    reduce-kv _ {} points:
+      fn(m k v):
+        ps =: v.map(second)
+        r =: range(ps.#.--)
+        reduce _ m r:
+          fn(m n):
+            p1 ps =: split-at(n.++ ps)
+            reduce _ m ps:
+              fn(m p2):
+                map-antis(m p1:last p2)

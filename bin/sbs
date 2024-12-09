@@ -8,21 +8,15 @@ defn main(file): !:say
   clj =: code:ys/compile
   clj =: sh({:in clj}
             'zprint'
-            "{:width $cwidth :style :community}"
-          ).out
-           .replace(
-             /(?m)^(\ *\(defn \S*)\n\s*\[/
-             '$1 ['
-           )
-  clj =: |-
-    ;; $ ys -c $file
-
-    $clj
+            "{:width $cwidth}"
+          ).out.replace(
+           /(?m)^(\ *\(defn \S*)\n\s*\[/
+           '$1 [')
+  clj =: ";; $ ys -c $file\n\n$clj"
   clines =: clj:lines
   height =: max(ylines.# clines.#)
   reduce _ '' range(height):
     fn(out i):
       out +:
         format "%-${ywidth}s | %s\n":
-          (ylines.$i || '')
-          (clines.$i || '')
+          ylines.$i:S clines.$i:S
