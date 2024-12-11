@@ -1,0 +1,43 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  line =: file:slurp:chomp + '0'
+  tuples =: map-indexed(vector line:split.partition(2))
+  disk =:
+    reduce _ [] tuples:
+      fn(disk [index [content free-space]]):
+        conj disk: content:N.repeat(index)
+                   [free-space:N]
+
+  z =: disk.# - 2
+  disk =:
+    loop z z, disk disk:
+      if z > 0:
+        if disk.$z:vector?:
+          recur: z.--, disk
+          recur: z.--, update(z disk)
+        else: disk
+
+  first:
+    reduce _ [0 0] disk:
+      fn([num idx] next):
+        seq =:
+          if next:vector?.!: next
+            next:rest:flatten.concat([0] * next.0)
+        vector:
+          map-indexed(\(%2 * (idx + %1)) seq)
+            .sum().add(num)
+          seq.#.add(idx)
+
+defn update(z disk):
+  file =: disk.$z
+  pos =:
+    loop a 0:
+      x =: disk.$a
+      if (a >= z) || (x:vector? && (x.0 >= file.#)):
+        a recur(a.++)
+  if pos < z:
+    disk: .update-in([pos 0] \(disk.$pos.0 - file.#))
+          .update-in([pos] \(%1.conj(file)))
+          .update-in([z] \([file.#]))
+    else: disk

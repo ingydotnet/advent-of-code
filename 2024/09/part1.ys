@@ -1,0 +1,24 @@
+!yamlscript/v0
+
+defn main(file): !:say
+  line =: file:slurp:chomp + '0'
+  tuples =:
+    map-indexed vector:
+      line:split.partition(2)
+  disk =:
+    reduce _ [] tuples:
+      fn(disk [index [content free-space]]):
+        apply conj disk:
+          content:N.repeat(index) +
+          free-space:N.repeat(-1)
+
+  sum:
+    map-indexed mul:
+      loop a 0, z disk.#.--, new []:
+        if a <= z:
+          if disk.$a >= 0:
+            recur: a.++, z, new.conj(disk.$a)
+            recur a.++, _, new.conj(disk.$z):
+              loop z z.--:
+                if disk.$z > 0: z z.--:recur
+          else: new

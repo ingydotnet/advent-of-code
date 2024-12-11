@@ -19,4 +19,4 @@ defn main(file): !:say
     fn(out i):
       out +:
         format "%-${ywidth}s | %s\n":
-          ylines.$i:S clines.$i:S
+          str(ylines.$i) str(clines.$i)
